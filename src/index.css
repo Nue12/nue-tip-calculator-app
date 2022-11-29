@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply text-2xl;
+  }
+  h4 {
+    @apply text-sm;
+  }
+}
+
+:root {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+
+  background-color: hsl(185, 41%, 84%);
+  color:hsl(186, 14%, 43%);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
