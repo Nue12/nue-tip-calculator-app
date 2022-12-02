@@ -1,9 +1,47 @@
-import React from 'react'
-import dollarImg from '../../public/images/icon-dollar.svg'
+import React, { useState } from 'react'
+import dollarImg from '/images/icon-dollar.svg'
 import personIcon from '../../public/images/icon-person.svg'
 import CostDisplay from './CostDisplay'
+import { billUpdate, tipUpdate, userUpdate } from '../features/splitSlice'
+import { useDispatch } from 'react-redux'
 
 export default function SplitterInput() {
+  const [bill, setBill] = useState('');
+  const [user, setUser] = useState('');
+  const [custom, setCustom] = useState('');
+  const [tipAmount, setTipAmount] = useState('');
+  const [total, setTotal] = useState('');
+
+  const dispatch = useDispatch();
+
+  const tipChange = (e) => {
+    let tipAmounts
+    if (bill) {
+        tipAmounts = (e * +bill) / 100; 
+        setTipAmount(tipAmounts);
+    }
+    if(bill.length < 0 || user.length < 0) return;
+    setTotal((+bill / +user) + tipAmounts);
+    dispatch(tipUpdate({bill, user, tipAmounts}));
+    console.log(total);
+  }
+  
+  const userChange = (e) => {
+    const users = e.target.value.replace(/[^\dA-Z]/g, '');
+    setUser(users);
+    if(bill.length < 0) return;
+    setTotal(+bill / +users)
+    dispatch(userUpdate({bill, users, tipAmount}))
+  }
+
+  const billChange = (e) => {
+    const bills = e.target.value.replace(/[A-Z || a-z]/g, '');
+    setBill(bills);
+    if(user.length < 0) return;
+    setTotal(+bill / +user)
+    dispatch(billUpdate({bills, user, tipAmount}))
+  }
+
   return (
     <section className=' max-w-4xl bg-neutral-White rounded-t-2xl p-5 mt-7 lg:flex lg:w-11/12 mx-auto space-x-6'>
         <div className=' lg:w-6/12'>
@@ -13,6 +51,8 @@ export default function SplitterInput() {
                 <input 
                     type='text' 
                     name='bill' 
+                    value={bill}
+                    onChange={(e) => billChange(e)}
                     className=' w-full py-2 px-4 rounded-md text-right outline-primary-Strong-cyan bg-neutral-Very-light-grayish-cyan text-neutral-Very-dark-cyan text-2xl'
                 /><br />
             </div>
@@ -20,35 +60,39 @@ export default function SplitterInput() {
                 <label htmlFor='Tip' className='block mb-4'>Select Tip %</label>
                 <div className='text-2xl text-neutral-Very-light-grayish-cyan grid grid-cols-2 sm:grid-cols-3 justify-items-center gap-4 w-full'>
                     <button 
-                        className='bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        className='focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        onClick={() => tipChange(5)}
                     >
                     5%
                     </button>
                     <button 
-                        className='bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        className='focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
                     >
                     10%
                     </button>
                     <button 
-                        className='bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        className='focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        onClick={() => tipChange(15)}
                     >
                     15%
                     </button>
                     <button 
-                        className='bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        className='focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
                     >
                     25%
                     </button>
                     <button 
-                        className='bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        className=' focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
                     >
                     50%
                     </button>
                     <input 
                         type='text' 
+                        value={custom}
+                        onChange={(e) => setCustom(e.target.value.replace((/[^\dA-Z]/g), ''))}
                         name='custom' 
                         placeholder='Custom'
-                        className=' text-2xl text-center outline-primary-Strong-cyan bg-neutral-Very-light-grayish-cyan rounded-md placeholder:text-neutral-Dark-grayish-cyan text-neutral-Dark-grayish-cyan py-2 w-32'
+                        className='pr-1 text-right text-2xl placeholder:text-center outline-primary-Strong-cyan bg-neutral-Very-light-grayish-cyan rounded-md placeholder:text-neutral-Dark-grayish-cyan text-neutral-Dark-grayish-cyan py-2 w-32'
                     />
                 </div>
             </div>
@@ -57,12 +101,16 @@ export default function SplitterInput() {
                 <img src={personIcon} alt='personIcon' className=' absolute p-4'/>
                 <input 
                     type='text' 
+                    value={user}
+                    onChange={(e) => userChange(e)}
                     name='noOfPeople' 
                     className=' w-full py-2 px-4 rounded-md text-right outline-primary-Strong-cyan bg-neutral-Very-light-grayish-cyan text-neutral-Very-dark-cyan text-2xl'
                 />
             </div>
         </div>
-        <CostDisplay />
+        <CostDisplay 
+            total={total}
+        />
     </section>
   )
 }
