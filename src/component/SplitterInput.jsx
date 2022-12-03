@@ -2,26 +2,32 @@ import React, { useState } from 'react'
 import dollarImg from '/images/icon-dollar.svg'
 import personIcon from '../../public/images/icon-person.svg'
 import CostDisplay from './CostDisplay'
-import { billUpdate, tipUpdate, userUpdate } from '../features/splitSlice'
+import { billUpdate, tipUpdate, userUpdate, reset } from '../features/splitSlice'
 import { useDispatch } from 'react-redux'
 
 export default function SplitterInput() {
   const [bill, setBill] = useState('');
   const [user, setUser] = useState('');
   const [custom, setCustom] = useState('');
+  const [tipPercent, setTipPercent] = useState('');
   const [tipAmount, setTipAmount] = useState('');
-  const [total, setTotal] = useState('');
 
   const dispatch = useDispatch();
 
+  const customChange = (e) => {
+    const customs = e.target.value.replace(/[^\dA-Z]/g, '');
+    setCustom(customs);
+    tipChange(customs);
+  }
+
   const tipChange = (e) => {
     let tipAmounts
+    setTipPercent(e);
     if (bill) {
         tipAmounts = (e * +bill) / 100; 
         setTipAmount(tipAmounts);
     }
     if(bill.length < 0 || user.length < 0) return;
-    setTotal((+bill / +user) + tipAmounts);
     dispatch(tipUpdate({bill, user, tipAmounts}));
     console.log(total);
   }
@@ -30,16 +36,22 @@ export default function SplitterInput() {
     const users = e.target.value.replace(/[^\dA-Z]/g, '');
     setUser(users);
     if(bill.length < 0) return;
-    setTotal(+bill / +users)
-    dispatch(userUpdate({bill, users, tipAmount}))
+    dispatch(userUpdate({bill, users, tipAmount, tipPercent}))
   }
 
   const billChange = (e) => {
     const bills = e.target.value.replace(/[A-Z || a-z]/g, '');
     setBill(bills);
     if(user.length < 0) return;
-    setTotal(+bill / +user)
-    dispatch(billUpdate({bills, user, tipAmount}))
+    dispatch(billUpdate({bills, user, tipAmount, tipPercent}))
+  }
+
+  const resetChange = () => {
+    setBill('');
+    setCustom('');
+    setTipAmount('');
+    setUser('');
+    dispatch(reset());
   }
 
   return (
@@ -67,6 +79,7 @@ export default function SplitterInput() {
                     </button>
                     <button 
                         className='focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        onClick={() => tipChange(10)}
                     >
                     10%
                     </button>
@@ -78,18 +91,20 @@ export default function SplitterInput() {
                     </button>
                     <button 
                         className='focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        onClick={() => tipChange(25)}
                     >
                     25%
                     </button>
                     <button 
                         className=' focus:bg-neutral-Light-grayish-cyan focus:text-neutral-Very-dark-cyan hover:text-neutral-Very-dark-cyan hover:bg-neutral-Light-grayish-cyan bg-neutral-Very-dark-cyan rounded-md py-2 px-4 w-32'
+                        onClick={() => tipChange(50)}
                     >
                     50%
                     </button>
                     <input 
                         type='text' 
                         value={custom}
-                        onChange={(e) => setCustom(e.target.value.replace((/[^\dA-Z]/g), ''))}
+                        onChange={(e) => customChange(e)}
                         name='custom' 
                         placeholder='Custom'
                         className='pr-1 text-right text-2xl placeholder:text-center outline-primary-Strong-cyan bg-neutral-Very-light-grayish-cyan rounded-md placeholder:text-neutral-Dark-grayish-cyan text-neutral-Dark-grayish-cyan py-2 w-32'
@@ -109,7 +124,7 @@ export default function SplitterInput() {
             </div>
         </div>
         <CostDisplay 
-            total={total}
+            resetChange={resetChange}
         />
     </section>
   )

@@ -1,8 +1,9 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
-export default function CostDisplay() {
+export default function CostDisplay({resetChange}) {
     const {total, tipAmount} = useSelector(state => state.spliter)
+    const dispatch = useDispatch();
     // const totalExist = total.length > 0;
     // console.log(totalExist)
   return (
@@ -21,7 +22,12 @@ export default function CostDisplay() {
             </div>
             <h1 className=' text-primary-Strong-cyan'>{total ? `$${total.toFixed(2)}` : `0.00`}</h1>
         </div>
-        <button className=' hover:bg-neutral-Light-grayish-cyan lg:mt-32 text-xl rounded-md w-full text-center text-neutral-Very-dark-cyan bg-primary-Strong-cyan py-2'>RESET</button>
+        <button 
+            className=' hover:bg-neutral-Light-grayish-cyan lg:mt-32 text-xl rounded-md w-full text-center text-neutral-Very-dark-cyan bg-primary-Strong-cyan py-2'
+            onClick={resetChange}
+        >
+        RESET
+        </button>
     </section>
   )
 }
